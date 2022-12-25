@@ -3,7 +3,6 @@ package hashcash
 import (
 	"encoding/binary"
 	"hash"
-	"log"
 	"math"
 	"math/big"
 )
@@ -115,7 +114,7 @@ func (h *Doer) DoWork(work Work) UInt64 {
 		hasher.Reset()
 
 		if verifyWork(work.Hash[:], attempt, work.Target, hasher) {
-			log.Printf("work done in %d iterations\n", i)
+			//log.Printf("work done in %d iterations\n", i)
 			break
 		}
 	}
