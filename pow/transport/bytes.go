@@ -16,6 +16,10 @@ func DeserializeSlice(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("field with unexpected length %d", n)
 	}
 
+	if length[0] == 0 {
+		return nil, nil
+	}
+
 	byteSlice := make([]byte, length[0])
 	n, err = r.Read(byteSlice)
 	if err != nil {
@@ -29,6 +33,10 @@ func DeserializeSlice(r io.Reader) ([]byte, error) {
 }
 
 func SerializeSlice(slice []byte) []byte {
+	if len(slice) > 255 {
+		return nil
+	}
+
 	return bytes.Join(
 		[][]byte{
 			{byte(len(slice))},

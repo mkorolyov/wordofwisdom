@@ -9,9 +9,7 @@ import (
 	"github.com/mkorolyov/wordofwisdom/server"
 )
 
-var (
-	addr = flag.String("addr", ":9991", "")
-)
+var addr = flag.String("addr", ":9991", "")
 
 func main() {
 	log.SetFlags(log.Lmicroseconds | log.Lshortfile)

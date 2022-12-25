@@ -11,9 +11,7 @@ import (
 	"github.com/mkorolyov/wordofwisdom/pow/transport"
 )
 
-var (
-	addr = flag.String("addr", ":9991", "")
-)
+var addr = flag.String("addr", ":9991", "")
 
 func main() {
 	flag.Parse()
@@ -27,13 +25,7 @@ func main() {
 
 	defer func() { _ = conn.Close() }()
 
-	counter := solveChallenge(conn)
-
-	// send response to the server
-	response := transport.HashcashResponse{Counter: counter[:]}
-	if err := transport.WriteSlice(conn, response.Serialize()); err != nil {
-		log.Fatalf("cant write hashcash challenge response: %v", err)
-	}
+	solveChallenge(conn)
 
 	// load quote
 	quoteBytes, err := transport.DeserializeSlice(conn)
@@ -44,7 +36,7 @@ func main() {
 	log.Printf("received quote from the server: %q", quoteBytes)
 }
 
-func solveChallenge(conn net.Conn) hashcash.UInt64 {
+func solveChallenge(conn net.Conn) {
 	hashCashSolver := hashcash.NewDoer(hashcash.DoerConfig{Hasher: sha256.New})
 
 	var challenge transport.HashcashChallenge
@@ -59,5 +51,9 @@ func solveChallenge(conn net.Conn) hashcash.UInt64 {
 	})
 	log.Printf("challenge solve took %s", time.Since(now))
 
-	return counter
+	// send response to the server
+	response := transport.HashcashResponse{Counter: counter[:]}
+	if err := transport.WriteSlice(conn, response.Serialize()); err != nil {
+		log.Fatalf("cant write hashcash challenge response: %v", err)
+	}
 }

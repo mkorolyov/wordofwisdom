@@ -20,3 +20,12 @@ This Makefile target will:
 * stop server container
 * remove build docker images
 * remove docker network
+
+## In consideration
+* stdlib logger used for simplicity. in real life i would use zap or one with similar performance structured logger. 
+* binary serializations support data not more than 255(byte) length for simplicity.
+* There is single Dockerfile that unified and used both for client and server.
+* Tests are not covering entire codebase. Just a few examples added to show how i would test some parts.
+* There is still room for performance scaling of the TCP server itself. we can use directly linux epoll for example to "offload" the connection where there is nothing to read at the moment.
+* There is a lot of room for DDOS protection optimizations. Like algo type rotations per new incoming connection
+* There no metrics where added. I would add prometheus library(which adds go metrics by default like memory utilization, etc) and cover incoming connections, their duration, closing status(ok/error), ratio of succeed POW, etc.
