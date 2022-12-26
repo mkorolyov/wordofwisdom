@@ -31,7 +31,13 @@ To consider: We could also add message TTL:
 * Then sign entire message and send this signature to the client too.
 * Client will have to sand back the whole signed challenge, signature and a solution.
 
-This will add a stable protection from replay attacks, but will increase the network load dramatically as data size we send and receive grows a lot.  
+This will add a stable protection from replay attacks, but will increase the network load dramatically as data size we send and receive grows a lot.
+
+## errors
+
+We are not sending POW related errors to the client to make possible reverse engineering harder.
+
+When the POW check passed the only error could happen - is a failure to write the quote to the net conn, so if we failed to write the payload - error about it will also be failed to be written to the conn.
 
 # How to run
 
