@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"math/big"
+	"time"
 )
 
 /*
@@ -74,9 +75,10 @@ func New(cfg Config) *Verifier {
 }
 
 type Work struct {
-	Nonce  UInt64
-	Target *big.Int
-	Hash   []byte
+	Timestamp UInt64
+	Nonce     UInt64
+	Target    *big.Int
+	Hash      []byte
 }
 
 func (h *Verifier) NewWork() Work {
@@ -84,20 +86,26 @@ func (h *Verifier) NewWork() Work {
 	// gen new rand uint64 and fill it to [8]byte array
 	binary.BigEndian.PutUint64(nonce[:], h.rand.uint64())
 
+	var timestampBytes UInt64
+	binary.BigEndian.PutUint64(timestampBytes[:], uint64(time.Now().UnixNano()))
+
 	hasher := h.hasher()
 	hasher.Write(h.salt)
+	hasher.Write(timestampBytes[:])
 	hasher.Write(nonce[:])
 
 	return Work{
-		Nonce:  nonce,
-		Target: h.target,
-		Hash:   hasher.Sum(nil),
+		Timestamp: timestampBytes,
+		Nonce:     nonce,
+		Target:    h.target,
+		Hash:      hasher.Sum(nil),
 	}
 }
 
-func (h *Verifier) VerifyWorkDone(workResult []byte, nonce UInt64) bool {
+func (h *Verifier) VerifyWorkDone(workResult []byte, nonce, timestamp UInt64) bool {
 	hasher := h.hasher()
 	hasher.Write(h.salt)
+	hasher.Write(timestamp[:])
 	hasher.Write(nonce[:])
 	work := hasher.Sum(nil)
 

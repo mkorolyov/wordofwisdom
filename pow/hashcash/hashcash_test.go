@@ -16,8 +16,8 @@ func Test_HashcashPOW(t *testing.T) {
 
 	work := hashcash.NewWork()
 	counter := hashcash.DoWork(work)
-	if !hashcash.VerifyWorkDone(counter[:], work.Nonce) {
-		t.Fail()
+	if !hashcash.VerifyWorkDone(counter[:], work.Nonce, work.Timestamp) {
+		t.Error("work done was not verified")
 	}
 }
 

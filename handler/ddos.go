@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/mkorolyov/wordofwisdom/pow/hashcash"
 	"github.com/mkorolyov/wordofwisdom/pow/transport"
@@ -23,12 +24,25 @@ func DDoSProtection(h server.Handler) server.Handler {
 	return func(conn net.Conn) error {
 		work := hashcashPOW.NewWork()
 
+		if err := conn.SetWriteDeadline(time.Now().Add(time.Second)); err != nil {
+			return fmt.Errorf("cant limit time to read the challenge by client: %v", err)
+		}
+
 		if err := sendHashcashChallenge(conn, work); err != nil {
 			return err
 		}
 
+		// TODO this deadline could be calculated from difficulty with some reosanable time gap for network roundtrip
+		if err := conn.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+			return fmt.Errorf("cant limit time to solve the challenge by client: %v", err)
+		}
+
 		if err := verifyHashcashResponse(conn, hashcashPOW, work); err != nil {
 			return err
+		}
+
+		if err := conn.SetDeadline(time.Time{}); err != nil {
+			return fmt.Errorf("cant remove previously set deadlines: %v", err)
 		}
 
 		return h(conn)
@@ -54,7 +68,7 @@ func verifyHashcashResponse(conn net.Conn, hashcashVerifier *hashcash.Verifier, 
 		return fmt.Errorf("cant read hashcashVerifier client response: %w", err)
 	}
 
-	if !hashcashVerifier.VerifyWorkDone(clientResponse.Counter, work.Nonce) {
+	if !hashcashVerifier.VerifyWorkDone(clientResponse.Counter, work.Nonce, work.Timestamp) {
 		// no need to notify bad client and spend more resources on it.
 		// TODO introduce typed err and handle like expected scenario
 		return fmt.Errorf("client didnt solve the puzzle")
