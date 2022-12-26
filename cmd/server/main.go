@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"log"
 
+	"github.com/mkorolyov/wordofwisdom/assets"
 	"github.com/mkorolyov/wordofwisdom/handler"
 	"github.com/mkorolyov/wordofwisdom/server"
 )
@@ -24,5 +26,8 @@ func main() {
 	srv := server.NewTCPServer(cfg)
 	ctx := context.Background()
 
-	srv.Serve(ctx, handler.DDoSProtection(handler.RandomQuotes()))
+	srv.Serve(ctx,
+		handler.DDoSProtection(
+			handler.RandomQuotes(bytes.NewReader(assets.QuotesFile)),
+		))
 }

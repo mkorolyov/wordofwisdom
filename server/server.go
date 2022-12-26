@@ -57,7 +57,7 @@ func (s *TCPServer) Serve(ctx context.Context, handler Handler) {
 
 	go s.watchShutdown(cancel, l)
 
-	handler = connCloser(handler)
+	handler = ConnCloser(handler)
 
 	for {
 		// taking in account that epoll already used in stdlib net runtime our server already will perform well.
@@ -80,7 +80,7 @@ func (s *TCPServer) Serve(ctx context.Context, handler Handler) {
 	}
 }
 
-func connCloser(h Handler) Handler {
+func ConnCloser(h Handler) Handler {
 	return func(conn net.Conn) error {
 		defer func() {
 			if err := conn.Close(); err != nil {

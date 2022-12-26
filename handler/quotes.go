@@ -2,21 +2,20 @@ package handler
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"net"
 	"time"
 
-	"github.com/mkorolyov/wordofwisdom/assets"
 	"github.com/mkorolyov/wordofwisdom/pow/transport"
 	"github.com/mkorolyov/wordofwisdom/server"
 )
 
-func RandomQuotes() server.Handler {
+func RandomQuotes(source io.Reader) server.Handler {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	quotes, err := ScanQuotes()
+	quotes, err := ScanQuotes(source)
 	if err != nil {
 		log.Fatalf("cant build quotes Handler: %v", err)
 	}
@@ -32,9 +31,9 @@ func RandomQuotes() server.Handler {
 	}
 }
 
-func ScanQuotes() ([][]byte, error) {
+func ScanQuotes(source io.Reader) ([][]byte, error) {
 	var quotes [][]byte
-	scanner := bufio.NewScanner(bytes.NewReader(assets.QuotesFile))
+	scanner := bufio.NewScanner(source)
 	for scanner.Scan() {
 		quotes = append(quotes, scanner.Bytes())
 	}
