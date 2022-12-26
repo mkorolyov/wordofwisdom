@@ -1,3 +1,5 @@
+[![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT) [![GoDoc](https://godoc.org/github.com/mkorolyov/wordofwisdom?status.svg)](http://godoc.org/github.com/mkorolyov/wordofwisdom) ![Build status](https://github.com/mkorolyov/wordofwisdom/actions/workflows/ci.yml/badge.svg)
+
 # Proof of Work as protection against DDOS attacks
 
 Here is an example of how Proof of Work can be used to protect TCP server agains DDOS attacks by pushing client to make resource-expensive calculations before receiving access to the server functionality.
